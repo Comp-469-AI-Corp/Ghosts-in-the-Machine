@@ -46,8 +46,8 @@ AGENT_NAME = "table_driven"
 # =====================================================================
 @dataclass(frozen=True)
 class Percept:
-    ...  # TODO(CH2-1a): replace this with the two fields above.
-
+    current_direction: tuple[int,int]
+    legal_actions: tuple[tuple[int,int], ...]
 
 def _all_nonempty_subsets(items: tuple) -> list[tuple]:
     """Every non-empty subset of ``items``, order preserved. Provided --
@@ -85,7 +85,18 @@ class TableDrivenAgent:
         has to be a literal lookup table built with loops here, in
         ``__init__`` -- not logic evaluated later in ``choose_action``.
         """
-        raise NotImplementedError("CH2-1b: _build_table")
+        table: dict[tuple, tuple[int, int]] = {}
+        all_directions = DIRECTION_ORDER + ((0,0),)
+        all_legal_actions = _all_nonempty_subsets(DIRECTION_ORDER)
+
+        for current_direction in all_directions:
+            for legal_actions in all_legal_actions:
+                if current_direction in legal_actions:
+                    action = current_direction
+                else:
+                    action = legal_actions[0]
+                table[(current_direction, legal_actions)] = action
+        return table
 
     # -------------------------------------------------------------
     # TODO(CH2-1c)  Look it up
@@ -104,4 +115,16 @@ class TableDrivenAgent:
           - Set ``self.last_reason`` to a short line with the direction
             name, e.g. ``f"{DIRECTION_NAMES[action]} | table lookup"``.
         """
-        raise NotImplementedError("CH2-1c: choose_action")
+        if not percept.legal_actions:
+            self.last_reason = "No legal"
+            return(0, 0)
+
+        key = (percept.current_direction, percept.legal_actions)
+        action = self.table.get(key)
+
+        if action is None or action not in percept.legal_actions:
+            self.table_misses += 1
+            action = percept.legal_actions[0]
+
+        self.last_reason = f"{DIRECTION_NAMES[action]} | table lookup"
+        return action

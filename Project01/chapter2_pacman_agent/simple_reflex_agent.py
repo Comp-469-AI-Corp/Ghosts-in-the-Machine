@@ -37,6 +37,9 @@ class Percept:
     pellets: frozenset[tuple[int, int]]
     power_pellets: frozenset[tuple[int, int]]
     legal_actions: tuple[tuple[int, int], ...]
+    current_direction: tuple[int, int]
+    released_ghosts: tuple[tuple[int, int], ...]
+    frightened_time_remaining: float
 
     @property
     def frightened(self) -> bool:
@@ -76,7 +79,46 @@ class SimpleReflexAgent:
         return a chosen action in one place, so every branch reports the
         same way -- see its docstring.
         """
-        raise NotImplementedError("CH2-2b: choose_action")
+        # 1
+        if not percept.legal_actions:
+            self.last_reason = "No legal"
+            return (0,0)
+
+        # 2
+        safe = []
+        for action in percept.legal_actions:
+            next_pos = self.maze.step(percept.player, action)
+            danger = next_pos in percept.released_ghosts and not percept.frightened
+            if not danger:
+                safe.append(action)
+
+        if len(safe) == 0:
+            safe = list(percept.legal_actions)
+
+        # 3
+        if percept.frightened:
+            for action in safe:
+                next_pos = self.maze.step(percept.player, action)
+                if next_pos in percept.released_ghosts:
+                    return self._commit(action, "frightened ghost")
+
+        # 4
+        for action in safe:
+            next_pos = self.maze.step(percept.player, action)
+            if next_pos in percept.power_pellets:
+                return self._commit(action, "power pellet")
+
+        # 5
+        for action in safe:
+            next_pos = self.maze.step(percept.player, action)
+            if next_pos in percept.pellets:
+                return self._commit(action, "regular pellet")
+
+        # 6
+        if percept.current_direction in safe:
+            return self._commit(percept.current_direction, "continue straight")
+        # 7
+        return self._commit(safe[0], "take safe action in current direction")
 
     def _commit(self, action: tuple[int, int], rule: str) -> tuple[int, int]:
         """Set last_reason to e.g. 'RIGHT | rule: adjacent pellet' and
