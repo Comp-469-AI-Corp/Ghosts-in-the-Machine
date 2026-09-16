@@ -21,16 +21,6 @@ from pacman.maze import DIRECTION_NAMES, MazeModel
 AGENT_NAME = "simple_reflex"
 
 
-# =====================================================================
-# TODO(CH2-2a)  The percept
-# =====================================================================
-# Add the three fields this agent needs and currently lacks, using these
-# exact names:
-#   current_direction:          tuple[int, int]
-#   released_ghosts:            tuple[tuple[int, int], ...]
-#   frightened_time_remaining:  float
-# Keep the four fields already here.
-# =====================================================================
 @dataclass(frozen=True)
 class Percept:
     player: tuple[int, int]
@@ -55,9 +45,6 @@ class SimpleReflexAgent:
         self.maze = maze
         self.last_reason = "Waiting for first percept."
 
-    # -------------------------------------------------------------
-    # TODO(CH2-2b)  The rules
-    # -------------------------------------------------------------
     def choose_action(self, percept: Percept) -> tuple[int, int]:
         """Apply, in order, the first rule that fires:
 

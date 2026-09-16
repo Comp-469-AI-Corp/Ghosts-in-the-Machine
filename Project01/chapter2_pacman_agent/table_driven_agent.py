@@ -30,20 +30,6 @@ from pacman.maze import DIRECTION_NAMES, DIRECTION_ORDER, MazeModel
 
 AGENT_NAME = "table_driven"
 
-
-# =====================================================================
-# TODO(CH2-1a)  The percept
-# =====================================================================
-# Declare exactly two fields here, using these exact names (the
-# environment matches on name; anything else raises an error that names
-# the offender):
-#
-#   current_direction:  tuple[int, int]
-#   legal_actions:       tuple[tuple[int, int], ...]
-#
-# Nothing else. A bigger percept is legal but defeats the point of this
-# part -- see the module docstring.
-# =====================================================================
 @dataclass(frozen=True)
 class Percept:
     current_direction: tuple[int,int]
@@ -68,9 +54,6 @@ class TableDrivenAgent:
         self.table: dict[tuple, tuple[int, int]] = self._build_table()
         self.table_misses = 0
 
-    # -------------------------------------------------------------
-    # TODO(CH2-1b)  Build the table
-    # -------------------------------------------------------------
     def _build_table(self) -> dict[tuple, tuple[int, int]]:
         """Return a dict mapping ``(current_direction, legal_actions)`` to
         one action, covering every combination your agent might see.
@@ -98,9 +81,7 @@ class TableDrivenAgent:
                 table[(current_direction, legal_actions)] = action
         return table
 
-    # -------------------------------------------------------------
-    # TODO(CH2-1c)  Look it up
-    # -------------------------------------------------------------
+
     def choose_action(self, percept: Percept) -> tuple[int, int]:
         """Look up ``(percept.current_direction, percept.legal_actions)``
         in ``self.table`` and return what you find.
