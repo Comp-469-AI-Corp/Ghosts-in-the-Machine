@@ -67,7 +67,26 @@ class GoalBasedAgent:
         food left at all, fall back to ``frozenset({percept.player})`` so
         the set is never empty.
         """
-        raise NotImplementedError("CH2-4a: determine_goal")
+        # frozenset of the released ghost positions>
+        ghosts = frozenset(percept.released_ghosts)
+
+        if (
+            not percept.frightened
+            and ghosts
+            and self.maze.distance(percept.player, ghosts) <= self.DANGER_RADIUS
+        ) :
+            return "flee", ghosts
+
+        #<frozenset of pellets and power pellets>
+        food = percept.pellets | percept.power_pellets
+
+        if percept.frightened:
+            food |= ghosts
+
+        if not food:
+            food = frozenset({percept.player})
+
+        return "seek", food
 
     # -------------------------------------------------------------
     # TODO(CH2-4b)  Test the goal
@@ -80,7 +99,18 @@ class GoalBasedAgent:
         self.DANGER_RADIUS steps (self.maze.distance) from every goal
         position.
         """
-        raise NotImplementedError("CH2-4b: goal_test")
+        goal_positions, the_goal = goal
+
+        if goal_positions == "seek":
+            return position in the_goal
+
+        if goal_positions == "flee":
+            return(self.maze.distance(position, the_goal) > self.DANGER_RADIUS)
+
+        raise ValueError(f"Goal Unknown: {goal_positions}")
+        
+    
+        
 
     # -------------------------------------------------------------
     # TODO(CH2-4c)  Act toward the goal
@@ -102,4 +132,38 @@ class GoalBasedAgent:
             landing tile, and the distance, e.g.:
             "RIGHT | goal=seek | achieved=False | dist=4"
         """
-        raise NotImplementedError("CH2-4c: choose_action")
+        if not percept.legal_actions:
+            self.last_reason = "No legal actions"
+            return (0, 0)
+
+        goal = self.determine_goal(percept)
+        goal_positions, the_goal = goal
+
+        optimal_action = None
+        optimal_start = None
+        optimal_distance = None
+
+        for legal_action in percept.legal_actions:
+            start = self.maze.step(percept.player, legal_action)
+            distance = self.maze.distance(start, the_goal)
+
+            if optimal_distance is None:
+                optimal_action = legal_action
+                optimal_start = start
+                optimal_distance = distance
+            elif goal_positions == "seek" and distance < optimal_distance:
+                optimal_action = legal_action
+                optimal_start = start
+                optimal_distance = distance
+            elif goal_positions == "flee" and distance > optimal_distance:
+                optimal_action = legal_action
+                optimal_start = start
+                optimal_distance = distance 
+
+        achieved = self.goal_test(optimal_start, goal)
+        direction = DIRECTION_NAMES[optimal_action]        
+
+        self.last_reason = (
+            f"{direction} | goal={goal_positions} | achieved={achieved} | dist={optimal_distance}"
+        )
+        return optimal_action
