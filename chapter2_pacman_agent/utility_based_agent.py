@@ -73,6 +73,18 @@ class UtilityWeights:
     regular_pellet: float = 25.0
     power_pellet: float = 80.0
     # TODO(CH2-5a): add the remaining named weights here.
+    ghost_catch_frightenend: float = 140.0 # reward for eating frightened ghost
+    ghost_close_frightened: float = -4.0 # smaller distance = smaller penalty for being close to frightened ghost
+    ghost_collision: float = -2600.0 # penalty for hitting a ghost that is not frightened
+    # penalty for being too close to ghost
+    ghost_one_step: float = -350.0
+    ghost_two_step: float = -90.0
+    ghost_three_step: float = -30.0
+    ghost_safe_distance: float = 3.0 # reward for staying more than three steps away from ghost
+    ghost_safe_distance_cap: float = 15.0 # max reward so no hiding
+    continuation: float = 2.0 # prevent unnessacary turning
+    revisit_per_visit: float = -4.0 # penalty for exploring same spot more than once
+    backtrack: float = -10.0 # penalty for going back direction came from
 
 
 class UtilityBasedAgent:
