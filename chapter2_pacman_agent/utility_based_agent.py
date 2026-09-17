@@ -53,18 +53,18 @@ class UtilityWeights:
     regular_pellet: float = 25.0
     power_pellet: float = 80.0
     
-    ghost_catch_frightened: float = 150.0 # reward for eating frightened ghost
-    ghost_close_frightened: float = -5.0 # smaller distance = smaller penalty for being close to frightened ghost
-    ghost_collision: float = -3000.0 # penalty for hitting a ghost that is not frightened
+    ghost_catch_frightened: float = 140.0 # reward for eating frightened ghost
+    ghost_close_frightened: float = -4.0 # smaller distance = smaller penalty for being close to frightened ghost
+    ghost_collision: float = -5000.0 # penalty for hitting a ghost that is not frightened
     # penalty for being too close to ghost
-    ghost_one_step: float = -500.0
-    ghost_two_steps: float = -140.0
-    ghost_three_steps: float = -40.0
-    ghost_safe_distance: float = 1.0 # reward for staying more than three steps away from ghost
-    ghost_safe_distance_cap: float = 5.0 # max reward so no hiding
-    continuation: float = 1.0 # prevent unnessacary turning
-    revisit_per_visit: float = -8.0 # penalty for exploring same spot more than once
-    backtrack: float = -15.0 # penalty for going back direction came from
+    ghost_one_step: float = -1200.0
+    ghost_two_steps: float = -350.0
+    ghost_three_steps: float = -100.0
+    ghost_safe_distance: float = 2.0 # reward for staying more than three steps away from ghost
+    ghost_safe_distance_cap: float = 8.0 # max reward so no hiding
+    continuation: float = 2.0 # prevent unnessacary turning
+    revisit_per_visit: float = -2.0 # penalty for exploring same spot more than once
+    backtrack: float = -5.0 # penalty for going back direction came from
 
 
 class UtilityBasedAgent:
