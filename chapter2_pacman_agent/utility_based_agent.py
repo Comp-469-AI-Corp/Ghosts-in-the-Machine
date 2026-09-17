@@ -202,6 +202,24 @@ class UtilityBasedAgent:
         contributions["revisit_count"] = revisit_count
 
 
+        if ghosts:
+            if percept.frightened:
+                contributions["ghost"] += w.ghost_close_frightenend * ghost_distance
+
+                if landing in ghosts:
+                    contributions["ghost"] += w.ghost_catch_frightenend
+            else:
+                if ghost_distance == 0:
+                    contributions["ghost"] += w.ghost_collision
+                elif ghost_distance == 1:
+                    contributions["ghost"] += w.ghost_one_step
+                elif ghost_distance ==2 :
+                    contributions["ghost"] += w.ghost_two_step
+                elif ghost_distance ==3 :
+                    contributions["ghost"] += w.ghost_three_step
+                else:
+                    safe_bonus = w.ghost_safe_distance * (ghost_distance -3)
+                    contributions["ghost"] += min(safe_bonus, w.ghost_safe_distance_cap)
 
     # -------------------------------------------------------------
     # TODO(CH2-5c)  Select, and explain
