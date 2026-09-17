@@ -157,7 +157,7 @@ class LearningAgent:
         updates: dict[str,float] = {}
 
         for name in chosen:
-            current = getattr(self.best_weigts, name)
+            current = getattr(self.best_weights, name)
 
             scale = (self.PERTURBATION_STRENGTH * max(abs(current), 2.0))
 
