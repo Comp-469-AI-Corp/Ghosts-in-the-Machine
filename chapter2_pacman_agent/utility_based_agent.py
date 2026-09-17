@@ -155,7 +155,25 @@ class UtilityBasedAgent:
             ``self.position_history[-2]`` (the tile from two turns ago;
             only meaningful once history has at least 2 entries).
         """
-        raise NotImplementedError("CH2-5b: evaluate_action")
+        if action not in percept.legal_actions:
+            raise ValueError(f"Illegal action: {action}")
+
+        w = self.weights
+        landing = self.maze.step(percept.player, action)
+
+        food = set(percept.pellets) | set(percept.power_pellets)
+        ghosts = set(percept.released_ghosts)
+
+        food_distance = self.maze.distance(landing, food)
+
+        if  ghosts:
+            ghost_distance = self.maze.distance(landing, ghosts)
+        else:
+            ghost_distance = 10000
+
+        revisit_count = self.visit_counts.get(landing, 0)
+
+
 
     # -------------------------------------------------------------
     # TODO(CH2-5c)  Select, and explain
