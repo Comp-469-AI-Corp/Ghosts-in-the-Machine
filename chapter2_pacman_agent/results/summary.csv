@@ -1,0 +1,9 @@
+agent,difficulty,trials,win_rate,caught_rate,mean_score,mean_decisions,mean_backtracks,mean_performance,stdev_performance
+table_driven,normal,30,0.0,1.0,77.0,12.23,1.1,-927.65,20.0
+simple_reflex,normal,30,0.0,1.0,721.67,110.37,6.7,-313.81,51.41
+model_based,normal,30,0.0,1.0,602.67,84.3,1.5,-417.19,89.97
+goal_based,normal,30,0.133,0.867,712.33,98.47,10.83,70.97,1210.01
+utility_based,normal,30,0.133,0.867,680.0,83.6,4.9,53.48,1289.59
+learning,normal,30,0.067,0.933,467.0,56.5,6.5,-357.3,1003.52
+greedy,normal,30,0.6,0.4,1091.0,79.9,6.93,1861.15,1819.58
+random,normal,30,0.0,1.0,190.67,33.2,11.87,-839.71,129.68

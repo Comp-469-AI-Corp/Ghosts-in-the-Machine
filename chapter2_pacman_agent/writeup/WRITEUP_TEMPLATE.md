@@ -1,7 +1,7 @@
 # Chapter 2 Write-Up
 
-Name:
-Date:
+Name: Isac Zarate, Karen Ocampo, Jonathon Chang
+Date: 9/16/26
 
 Keep this to three or four pages. Answer from the code in front of you,
 not from the textbook in general. A correct answer that could have been
@@ -18,18 +18,26 @@ description for the whole environment -- all six of your agents share it.
 > What is the agent actually judged on? Name the function and the file.
 > List every term in it, including the ones that cost points.
 
+The agent is actually being judged on the performance() function in pacman/rules.py. regular pellets are +10, power pellets are +50, firghtened ghosts are +200, a win is +2000, caught is -1000, every decision is -.2, and a backtrack is -2.
+
 **Environment.**
 > The maze, the ghosts, the pellets, the clock. Mention anything that
 > changes while an agent is deciding.
+
+Things that change while an agent is deciding are pacman's location, ghost location, remaining pellets, and fightened mode
 
 **Actuators.**
 > What can an agent actually do? Be precise about how many actions it
 > takes per turn and what happens if it picks an illegal one.
 
+The agent can actually perform one movement each turn. If it picks an illegal one, pacman stays in the same place and the choice impacts the performance decision cost.
+
 **Sensors.**
 > What can an agent perceive? Name the mechanism that decides this, not
 > just the list of possible fields -- and say why different parts of this
 > project declare different subsets of them.
+
+The mechanism that decides this is teh simulation.sense(). The different parts of this project declare different subset of them because each part represents a different type of agent and implementation.
 
 ---
 
@@ -40,17 +48,19 @@ specific in the code, and name it.
 
 | Property | This environment is... | Why (cite the code) |
 |---|---|---|
-| Fully or partially observable | | |
-| Single-agent or multi-agent | | |
-| Deterministic or nondeterministic | | |
-| Episodic or sequential | | |
-| Static or dynamic | | |
-| Discrete or continuous | | |
-| Known or unknown | | |
+| Fully or partially observable | partially obersvable|because simulation.sense() only provideds declared fields by the agent's percepts |
+| Single-agent or multi-agent | multi-agent| pacman shares the environment with several ghosts|
+| Deterministic or nondeterministic | nondeterministic| ghosts chase pacman but sometimes select random valid action, therfore pacman cannto know next ghost movement from current percept|
+| Episodic or sequential | sequential| A decision changes pacman's position, remaining pellets, visit coutns, frightened mode, and the situation for future decisions|
+| Static or dynamic |static but changed between turns | simulation does not move on to another event until choose_action() and _step_player return|
+| Discrete or continuous |discrete | pac mand and the ghosts occupy the whole maze and the actions available are in discrete directions|
+| Known or unknown |known |the agent is made with the static wall layout, legal connectivity, etc. |
 
 **Follow-up.** Two of these have an argument on both sides in this
 particular implementation. Pick one, and make the case for the answer you
 did *not* put in the table.
+
+The environment is static but there is a reasonable argument that it is dynamic since the "world" changes as the simulation goes on that are independently of the pacman action. Ghosts also have their own movement and characteristics. The reason for not putting dynamic is that the AIMA focuses on whether the environment changes while the agent is deliberating.
 
 ---
 
@@ -62,7 +72,7 @@ restatement of what it does overall -- the specific delta).
 
 | Part | Figure | What it adds over the previous part |
 |---|---|---|
-| 1. Table-driven | | (nothing to compare against -- say instead what makes it infeasible) |
+| 1. Table-driven | figure 2.7| (nothing to compare against -- say instead what makes it infeasible) |
 | 2. Simple reflex | | |
 | 3. Model-based reflex | | |
 | 4. Goal-based | | |
