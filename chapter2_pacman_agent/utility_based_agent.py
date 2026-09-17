@@ -204,7 +204,7 @@ class UtilityBasedAgent:
 
         if ghosts:
             if percept.frightened:
-                contributions["ghost"] += w.ghost_close_frightenend * ghost_distance
+                contributions["ghost"] += w.ghost_close_frightened * ghost_distance
 
                 if landing in ghosts:
                     contributions["ghost"] += w.ghost_catch_frightenend
