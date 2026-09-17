@@ -173,8 +173,8 @@ class UtilityBasedAgent:
 
         revisit_count = self.visit_counts.get(landing, 0)
 
-
-        contributions = {}
+        
+        contributions = {} # keep track of action score
 
         contributions["food_distance"] = w.food_distance * food_distance
 
@@ -184,9 +184,9 @@ class UtilityBasedAgent:
             contributions["regular_pellet"] = 0.0
 
         if landing in percept.power_pellets:
-            contributions["power_pellet"] = w.power_pellet
+            contributions["power_pellet"] = w.power_pellet # if eats power pellet, + amoutn for power pellet
         else:
-            contributions["power_pellet"] = 0.0
+            contributions["power_pellet"] = 0.0 # else none
 
         contributions["ghost"] = 0.0
         contributions["revisit"] = w.revisit_per_visit * revisit_count
