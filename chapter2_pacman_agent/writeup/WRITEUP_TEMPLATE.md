@@ -72,10 +72,10 @@ restatement of what it does overall -- the specific delta).
 
 | Part | Figure | What it adds over the previous part |
 |---|---|---|
-| 1. Table-driven | figure 2.7| (nothing to compare against -- say instead what makes it infeasible) |
-| 2. Simple reflex | | |
-| 3. Model-based reflex | | |
-| 4. Goal-based | | |
+| 1. Table-driven | figure 2.7| (nothing to compare against -- say instead what makes it infeasible) What makes it infeasible is the scalability|
+| 2. Simple reflex |figure 2.10 |replaces precomputed table with ordered condition action rules eval from the current precept |
+| 3. Model-based reflex |figure 2.11 and 2.12???|adds internal state so agent can distinguish a place already visited from a new location |
+| 4. Goal-based |figure 2.13 |Adds explicit changeable goal and goal test |
 | 5. Utility-based | | |
 | 6. Learning | | |
 
