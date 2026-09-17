@@ -273,29 +273,5 @@ class UtilityBasedAgent:
             self.last_reason = "No legal move."
             return (0, 0)
 
-        food = set(percept.pellets) | set(percept.power_pellets)
-        best_action = percept.legal_actions[0]
-        best_utility = float("-inf")
-        best_distance = 0
-
-        for action in percept.legal_actions:
-            landing = self.maze.step(percept.player, action)
-            food_distance = self.maze.distance(landing, food)
-
-            utility = -2.0 * food_distance
-            if landing in percept.pellets:
-                utility += 25.0
-            if landing in percept.power_pellets:
-                utility += 80.0
-
-            if utility > best_utility:
-                best_utility = utility
-                best_action = action
-                best_distance = food_distance
-
-        self.last_reason = (
-            f"{DIRECTION_NAMES[best_action]} | U={best_utility:.1f} | "
-            f"food={best_distance} | starter policy"
-        )
-        return best_action
+        
         # -------------- end of starter policy to replace --------------
