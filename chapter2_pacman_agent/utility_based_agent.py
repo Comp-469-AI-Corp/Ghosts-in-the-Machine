@@ -174,6 +174,34 @@ class UtilityBasedAgent:
         revisit_count = self.visit_counts.get(landing, 0)
 
 
+        contributions = {}
+
+        contributions["food_distance"] = w.food_distance * food_distance
+
+        if landing in percept.pellets:
+            contributions["regular_pellet"] = w.regular_pellet
+        else:
+            contributions["regular_pellet"] = 0.0
+
+        if landing in percept.power_pellets:
+            contributions["power_pellet"] = w.power_pellet
+        else:
+            contributions["power_pellet"] = 0.0
+
+        contributions["ghost"] = 0.0
+        contributions["revisit"] = w.revisit_per_visit * revisit_count
+        contributions["backtrack"] = 0.0
+
+        if action == percept.current_direction:
+            contributions["continuation"] = w.continuation
+        else:
+            contributions["continuation"] = 0.0
+
+        contributions["food_distance_steps"] = food_distance
+        contributions["ghost_distance_steps"] = ghost_distance
+        contributions["revisit_count"] = revisit_count
+
+
 
     # -------------------------------------------------------------
     # TODO(CH2-5c)  Select, and explain
