@@ -149,7 +149,7 @@ class LearningAgent:
         """
         field_names = list(self.best_weights.__dataclass_fields__) # get name in UtilityWeights
 
-        count = self.rng.radint(1, 2) # choose randomly to modify
+        count = self.rng.randint(1, 2) # choose randomly to modify
 
         chosen = self.rng.sample(field_names, count) # select weight name
 
@@ -181,4 +181,10 @@ class LearningAgent:
         so a bad experiment does not stick around for the next episode.
         Either way, increment ``self.episodes_seen``.
         """
-        raise NotImplementedError("CH2-6b: learn")
+        if performance > self.best_performance:
+            self.best_performance = performance
+            self.best_weights = self.performance_element.weights
+        else:
+            self.performance_element.weights = self.best_weights
+
+        self.episodes_seen +=1
