@@ -26,10 +26,7 @@ just delegates. What is new is what happens BETWEEN episodes, driven by
 ``tools/train_learning_agent.py`` (provided), which is the only thing that
 calls ``propose_new_weights()`` and ``learn()``.
 
-TODO(CH2-6a) and TODO(CH2-6b) mark what to do. Everything else in this
-file -- the naive starting weights, loading a previous training run,
-``choose_action`` delegating to the performance element -- is plumbing,
-provided so you can focus on the two methods that matter.
+
 """
 
 from __future__ import annotations
@@ -128,9 +125,7 @@ class LearningAgent:
         single decision changes in this part."""
         return self.performance_element.choose_action(percept)
 
-    # -------------------------------------------------------------
-    # TODO(CH2-6a)  Problem generator
-    # -------------------------------------------------------------
+    
     def propose_new_weights(self) -> UtilityWeights:
         """Return ``self.best_weights`` with a small random nudge applied
         to one or two fields, and RETURN it -- do not mutate any state
@@ -147,11 +142,25 @@ class LearningAgent:
         constructing a UtilityWeights from scratch, so every untouched
         field stays exactly as it was.
         """
-        raise NotImplementedError("CH2-6a: propose_new_weights")
+        field_names = list(self.best_weights.__dataclass_fields__) # get name in UtilityWeights
 
-    # -------------------------------------------------------------
-    # TODO(CH2-6b)  Critic + learning element
-    # -------------------------------------------------------------
+        count = self.rng.randint(1, 2) # choose randomly to modify
+
+        chosen = self.rng.sample(field_names, count) # select weight name
+
+
+        updates: dict[str,float] = {}
+
+        for name in chosen:
+            current = getattr(self.best_weights, name)
+
+            scale = (self.PERTURBATION_STRENGTH * max(abs(current), 2.0))
+
+            updates[name] = current + self.rng.gauss(0.0, scale)
+
+        return replace(self.best_weights, **updates)
+
+    
     def learn(self, performance: float) -> None:
         """Called once after each training episode with that episode's
         performance measure -- the critic's judgement, computed by the
@@ -165,4 +174,10 @@ class LearningAgent:
         so a bad experiment does not stick around for the next episode.
         Either way, increment ``self.episodes_seen``.
         """
-        raise NotImplementedError("CH2-6b: learn")
+        if performance > self.best_performance:
+            self.best_performance = performance
+            self.best_weights = self.performance_element.weights
+        else:
+            self.performance_element.weights = self.best_weights
+
+        self.episodes_seen +=1

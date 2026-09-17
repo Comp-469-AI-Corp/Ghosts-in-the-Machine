@@ -17,8 +17,7 @@ on the fly. Part of your write-up asks you to work out just how large a
 table with the bigger fields would need to be -- you do not have to build
 that version, just the arithmetic.
 
-TODO(CH2-1a), TODO(CH2-1b), TODO(CH2-1c) mark what to do. Delete each
-marker once that piece is done.
+
 """
 
 from __future__ import annotations
@@ -31,19 +30,6 @@ from pacman.maze import DIRECTION_NAMES, DIRECTION_ORDER, MazeModel
 AGENT_NAME = "table_driven"
 
 
-# =====================================================================
-# TODO(CH2-1a)  The percept
-# =====================================================================
-# Declare exactly two fields here, using these exact names (the
-# environment matches on name; anything else raises an error that names
-# the offender):
-#
-#   current_direction:  tuple[int, int]
-#   legal_actions:       tuple[tuple[int, int], ...]
-#
-# Nothing else. A bigger percept is legal but defeats the point of this
-# part -- see the module docstring.
-# =====================================================================
 @dataclass(frozen=True)
 class Percept:
     current_direction: tuple[int,int]
@@ -69,7 +55,7 @@ class TableDrivenAgent:
         self.table_misses = 0
 
     # -------------------------------------------------------------
-    # TODO(CH2-1b)  Build the table
+    #(CH2-1b)  Build the table
     # -------------------------------------------------------------
     def _build_table(self) -> dict[tuple, tuple[int, int]]:
         """Return a dict mapping ``(current_direction, legal_actions)`` to
@@ -99,7 +85,7 @@ class TableDrivenAgent:
         return table
 
     # -------------------------------------------------------------
-    # TODO(CH2-1c)  Look it up
+    #(CH2-1c)  Look it up
     # -------------------------------------------------------------
     def choose_action(self, percept: Percept) -> tuple[int, int]:
         """Look up ``(percept.current_direction, percept.legal_actions)``

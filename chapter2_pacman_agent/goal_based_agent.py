@@ -13,7 +13,7 @@ class or blend multiple scored terms into one number -- that is Part 5.
 This agent does not need the memory from Part 3 to do its job -- the goal
 is recomputed fresh from each percept -- so it is intentionally left out.
 
-TODO(CH2-4a), TODO(CH2-4b), TODO(CH2-4c) mark what to do.
+
 """
 
 from __future__ import annotations
@@ -50,9 +50,7 @@ class GoalBasedAgent:
         self.maze = maze
         self.last_reason = "Waiting for first percept."
 
-    # -------------------------------------------------------------
-    # TODO(CH2-4a)  Pick the goal
-    # -------------------------------------------------------------
+    
     def determine_goal(self, percept: Percept) -> tuple[str, frozenset]:
         """Return ``(kind, positions)``.
 
@@ -88,9 +86,7 @@ class GoalBasedAgent:
 
         return "seek", food
 
-    # -------------------------------------------------------------
-    # TODO(CH2-4b)  Test the goal
-    # -------------------------------------------------------------
+    
     def goal_test(self, position: tuple[int, int], goal: tuple[str, frozenset]) -> bool:
         """Has ``position`` achieved ``goal``?
 
@@ -112,9 +108,7 @@ class GoalBasedAgent:
     
         
 
-    # -------------------------------------------------------------
-    # TODO(CH2-4c)  Act toward the goal
-    # -------------------------------------------------------------
+    
     def choose_action(self, percept: Percept) -> tuple[int, int]:
         """Requirements:
           - If there are no legal actions, set last_reason to a string

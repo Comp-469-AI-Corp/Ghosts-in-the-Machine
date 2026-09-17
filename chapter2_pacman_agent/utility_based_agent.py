@@ -14,8 +14,7 @@ and can trade one desideratum off against another inside a single number.
 Do NOT implement your own search (BFS, DFS, A*, ...). ``self.maze.distance``
 is provided precisely so you never have to.
 
-TODO(CH2-5a), TODO(CH2-5b), TODO(CH2-5c) mark what to do. Delete each
-marker once that piece is done.
+
 """
 
 from __future__ import annotations
@@ -43,36 +42,29 @@ class Percept:
         return self.frightened_time_remaining > 0.0
 
 
-# =====================================================================
-# TODO(CH2-5a)  Named utility weights
-# =====================================================================
-# A utility function that hides its preferences inside bare numbers is
-# unreadable. Every number that expresses a preference belongs here, with
-# a name. At minimum you need weights covering:
-#
-#   catching a frightened ghost         a dangerous ghost one step away
-#   closing distance on a frightened    a dangerous ghost two steps away
-#     ghost (should be NEGATIVE: closer   a dangerous ghost three steps away
-#     is more attractive)               keeping a comfortable distance
-#   colliding with a dangerous ghost      beyond that, with a cap
-#   continuing in the same direction    revisiting a tile (per visit)
-#   reversing into the tile you just left
-#
-# food_distance, regular_pellet, and power_pellet are started for you.
-# Pick your own numbers for the rest -- you will defend them in the
-# write-up. A reader should be able to tell what this agent wants by
-# reading this class alone.
-# =====================================================================
+
 @dataclass(frozen=True)
 class UtilityWeights:
     """Named preferences. This is the agent's utility function, not the
     environment's performance measure (AIMA 4e Section 2.2 keeps those
     separate on purpose; so does this codebase -- see pacman/rules.py)."""
 
-    food_distance: float = -2.0
-    regular_pellet: float = 25.0
-    power_pellet: float = 80.0
-    # TODO(CH2-5a): add the remaining named weights here.
+    food_distance: float = -1.0
+    regular_pellet: float = 0.0
+    power_pellet: float = 0.0
+    
+    ghost_catch_frightened: float = 0.1 # reward for eating frightened ghost
+    ghost_close_frightened: float = 0.0 # smaller distance = smaller penalty for being close to frightened ghost
+    ghost_collision: float = -1000.0 # penalty for hitting a ghost that is not frightened
+    # penalty for being too close to ghost
+    ghost_one_step: float = -1.0
+    ghost_two_steps: float = 0.0
+    ghost_three_steps: float = -0.01
+    ghost_safe_distance: float = 0.01 # reward for staying more than three steps away from ghost
+    ghost_safe_distance_cap: float = 0.1 # max reward so no hiding
+    continuation: float = 0.0 # prevent unnessacary turning
+    revisit_per_visit: float = -0.01 # penalty for exploring same spot more than once
+    backtrack: float = -0.01 # penalty for going back direction came from
 
 
 class UtilityBasedAgent:
@@ -97,9 +89,7 @@ class UtilityBasedAgent:
         self.visit_counts[position] = self.visit_counts.get(position, 0) + 1
         self.position_history.append(position)
 
-    # -------------------------------------------------------------
-    # TODO(CH2-5b)  Evaluate one action
-    # -------------------------------------------------------------
+    
     def evaluate_action(
         self,
         percept: Percept,
@@ -143,11 +133,94 @@ class UtilityBasedAgent:
             ``self.position_history[-2]`` (the tile from two turns ago;
             only meaningful once history has at least 2 entries).
         """
-        raise NotImplementedError("CH2-5b: evaluate_action")
+        if action not in percept.legal_actions:
+            raise ValueError(f"Illegal action: {action}")
 
-    # -------------------------------------------------------------
-    # TODO(CH2-5c)  Select, and explain
-    # -------------------------------------------------------------
+        w = self.weights
+        landing = self.maze.step(percept.player, action)
+
+        food = set(percept.pellets) | set(percept.power_pellets)
+        ghosts = set(percept.released_ghosts)
+
+        food_distance = self.maze.distance(landing, food)
+
+        if  ghosts:
+            ghost_distance = self.maze.distance(landing, ghosts)
+        else:
+            ghost_distance = 10000
+
+        revisit_count = self.visit_counts.get(landing, 0)
+
+        
+        contributions = {} # keep track of action score
+
+        contributions["food_distance"] = w.food_distance * food_distance
+
+        if landing in percept.pellets:
+            contributions["regular_pellet"] = w.regular_pellet
+        else:
+            contributions["regular_pellet"] = 0.0
+
+        if landing in percept.power_pellets:
+            contributions["power_pellet"] = w.power_pellet # if eats power pellet, + amoutn for power pellet
+        else:
+            contributions["power_pellet"] = 0.0 # else none
+
+        contributions["ghost"] = 0.0
+        contributions["revisit"] = w.revisit_per_visit * revisit_count
+        contributions["backtrack"] = 0.0
+
+        if action == percept.current_direction:
+            contributions["continuation"] = w.continuation
+        else:
+            contributions["continuation"] = 0.0
+
+        contributions["food_distance_steps"] = food_distance
+        contributions["ghost_distance_steps"] = ghost_distance
+        contributions["revisit_count"] = revisit_count
+
+
+        if ghosts:
+            if percept.frightened:
+                contributions["ghost"] += w.ghost_close_frightened * ghost_distance
+
+                if landing in ghosts:
+                    contributions["ghost"] += w.ghost_catch_frightened
+            else:
+                if ghost_distance == 0:
+                    contributions["ghost"] += w.ghost_collision
+                elif ghost_distance == 1:
+                    contributions["ghost"] += w.ghost_one_step
+                elif ghost_distance ==2 :
+                    contributions["ghost"] += w.ghost_two_steps
+                elif ghost_distance ==3 :
+                    contributions["ghost"] += w.ghost_three_steps
+                else:
+                    safe_bonus = w.ghost_safe_distance * (ghost_distance -3)
+                    contributions["ghost"] += min(safe_bonus, w.ghost_safe_distance_cap)
+
+
+        if len(self.position_history) >= 2:
+            previous_title = self.position_history[-2]
+
+            if landing == previous_title:
+                contributions["backtrack"] = w.backtrack
+
+        weighted_term = (
+            "food_distance",
+            "regular_pellet",
+            "power_pellet",
+            "ghost",
+            "revisit",
+            "backtrack",
+            "continuation"
+        )
+
+        total_utility = sum(contributions[name] for name in weighted_term)
+
+        return total_utility, contributions
+
+    
     def choose_action(self, percept: Percept) -> tuple[int, int]:
         """Replace the starter policy below.
 
@@ -180,29 +253,32 @@ class UtilityBasedAgent:
             self.last_reason = "No legal move."
             return (0, 0)
 
-        food = set(percept.pellets) | set(percept.power_pellets)
+        self.update_internal_state(percept)
         best_action = percept.legal_actions[0]
-        best_utility = float("-inf")
-        best_distance = 0
+        best_utility, best_constributions = self.evaluate_action(percept, best_action) # first result stored in utility, second one stored in contributions
 
-        for action in percept.legal_actions:
-            landing = self.maze.step(percept.player, action)
-            food_distance = self.maze.distance(landing, food)
-
-            utility = -2.0 * food_distance
-            if landing in percept.pellets:
-                utility += 25.0
-            if landing in percept.power_pellets:
-                utility += 80.0
+        for action in percept.legal_actions[1:]:
+            utility, contributions = self.evaluate_action(percept, action)
 
             if utility > best_utility:
-                best_utility = utility
                 best_action = action
-                best_distance = food_distance
+                best_utility = utility
+                best_constributions = contributions
 
-        self.last_reason = (
-            f"{DIRECTION_NAMES[best_action]} | U={best_utility:.1f} | "
-            f"food={best_distance} | starter policy"
-        )
+        landing = self.maze.step(percept.player, best_action)
+
+        if best_constributions["revisit_count"] >0:
+            self.revisit_decisions += 1
+
+        if (len(self.position_history) >= 2 and landing == self.position_history[-2]):
+            self.backtrack_decisions += 1
+
+        memory = (best_constributions["revisit"] + best_constributions["backtrack"])
+
+        food_steps = best_constributions["food_distance_steps"]
+        ghost_steps = best_constributions["ghost_distance_steps"]
+
+        self.last_reason = (f"{DIRECTION_NAMES[best_action]} | U={best_utility:.1f} | "f"food={food_steps:g} | ghost={ghost_steps:g} | "f"memory={memory:.1f}") # distance of food and ghost in addition to combined memory
+
         return best_action
         # -------------- end of starter policy to replace --------------

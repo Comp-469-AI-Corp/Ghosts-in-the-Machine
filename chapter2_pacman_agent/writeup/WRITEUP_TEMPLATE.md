@@ -1,7 +1,7 @@
 # Chapter 2 Write-Up
 
-Name:
-Date:
+Name: Isac Zarate, Karen Ocampo, Jonathon Chang
+Date: 9/16/26
 
 Keep this to three or four pages. Answer from the code in front of you,
 not from the textbook in general. A correct answer that could have been
@@ -18,18 +18,26 @@ description for the whole environment -- all six of your agents share it.
 > What is the agent actually judged on? Name the function and the file.
 > List every term in it, including the ones that cost points.
 
+The agent is actually being judged on the performance() function in pacman/rules.py. regular pellets are +10, power pellets are +50, firghtened ghosts are +200, a win is +2000, caught is -1000, every decision is -.2, and a backtrack is -2.
+
 **Environment.**
 > The maze, the ghosts, the pellets, the clock. Mention anything that
 > changes while an agent is deciding.
+
+Things that change while an agent is deciding are pacman's location, ghost location, remaining pellets, and fightened mode
 
 **Actuators.**
 > What can an agent actually do? Be precise about how many actions it
 > takes per turn and what happens if it picks an illegal one.
 
+The agent can actually perform one movement each turn. If it picks an illegal one, pacman stays in the same place and the choice impacts the performance decision cost.
+
 **Sensors.**
 > What can an agent perceive? Name the mechanism that decides this, not
 > just the list of possible fields -- and say why different parts of this
 > project declare different subsets of them.
+
+The mechanism that decides this is teh simulation.sense(). The different parts of this project declare different subset of them because each part represents a different type of agent and implementation.
 
 ---
 
@@ -40,17 +48,19 @@ specific in the code, and name it.
 
 | Property | This environment is... | Why (cite the code) |
 |---|---|---|
-| Fully or partially observable | | |
-| Single-agent or multi-agent | | |
-| Deterministic or nondeterministic | | |
-| Episodic or sequential | | |
-| Static or dynamic | | |
-| Discrete or continuous | | |
-| Known or unknown | | |
+| Fully or partially observable | partially obersvable|because simulation.sense() only provideds declared fields by the agent's percepts |
+| Single-agent or multi-agent | multi-agent| pacman shares the environment with several ghosts|
+| Deterministic or nondeterministic | nondeterministic| ghosts chase pacman but sometimes select random valid action, therfore pacman cannto know next ghost movement from current percept|
+| Episodic or sequential | sequential| A decision changes pacman's position, remaining pellets, visit coutns, frightened mode, and the situation for future decisions|
+| Static or dynamic |static but changed between turns | simulation does not move on to another event until choose_action() and _step_player return|
+| Discrete or continuous |discrete | pac mand and the ghosts occupy the whole maze and the actions available are in discrete directions|
+| Known or unknown |known |the agent is made with the static wall layout, legal connectivity, etc. |
 
 **Follow-up.** Two of these have an argument on both sides in this
 particular implementation. Pick one, and make the case for the answer you
 did *not* put in the table.
+
+The environment is static but there is a reasonable argument that it is dynamic since the "world" changes as the simulation goes on that are independently of the pacman action. Ghosts also have their own movement and characteristics. The reason for not putting dynamic is that the AIMA focuses on whether the environment changes while the agent is deliberating.
 
 ---
 
@@ -62,12 +72,12 @@ restatement of what it does overall -- the specific delta).
 
 | Part | Figure | What it adds over the previous part |
 |---|---|---|
-| 1. Table-driven | | (nothing to compare against -- say instead what makes it infeasible) |
-| 2. Simple reflex | | |
-| 3. Model-based reflex | | |
-| 4. Goal-based | | |
-| 5. Utility-based | | |
-| 6. Learning | | |
+| 1. Table-driven | figure 2.7| (nothing to compare against -- say instead what makes it infeasible) What makes it infeasible is the scalability|
+| 2. Simple reflex |figure 2.10 |replaces precomputed table with ordered condition action rules eval from the current precept |
+| 3. Model-based reflex |figure 2.11 and 2.12???|adds internal state so agent can distinguish a place already visited from a new location |
+| 4. Goal-based |figure 2.13 |Adds explicit changeable goal and goal test |
+| 5. Utility-based |figure 2.14| replaces goal test with graded utility function |
+| 6. Learning | figure 2.15|adds learning process between episodes |
 
 **Two follow-ups:**
 
@@ -75,9 +85,16 @@ restatement of what it does overall -- the specific delta).
 > in your percepts. Say which you took and what the other one would have
 > cost you.
 
+We used released_ghosts in our percepts. Using ghosts would have cost us a lot in the accuracy of our agent because it has ALL ghost positions, including the ones not currently moving and providing an active threat
+
 > For Part 6: map the four boxes of AIMA Figure 2.15 (performance
 > element, critic, learning element, problem generator) onto specific
 > names in `learning_agent.py`.
+
+Performance element: self.performance_element
+Critic: simulation.performance()
+Learning element: LearningAgent.learn(performance)
+Problem generator: LearningAgent.propose_new_weights()
 
 ---
 
@@ -90,14 +107,18 @@ you.
 
 **Where does each one live?**
 > File and function/class for both.
+for the  performance measure: pacman/rules.py and Simulation.performance()
+For the utility function: utility_based_agent.py, UtilityWeights, and UtilityBasedAgent.evalueate_action()
 
 **Name one place they disagree.**
 > Find something your utility function rewards (or punishes) that the
 > performance measure does not, or the reverse. Explain why that gap
 > exists and whether it is a flaw.
+One place that they disagree on is the revisiting a tile. The gap exists and is intentional so that the agent does not spend too much time backtracking and actually spends time looking/exploring tiles it has not been to.
 
 **Why does AIMA insist on the distinction?**
 > Answer in your own words, in three or four sentences.
+AIMA insist on the distinction becase the performance measure is what the environment designer wants while the utility function is a tool for the agent to decide action. The performance measure judges the resulting behavior where the utility guides the choice of the agent before the final outcomes are known. Keeping them distinc also helps to see what the agent's preferences do and how they do not perfectly represent the rewards from the envrionment.
 
 ---
 
@@ -106,18 +127,23 @@ you.
 Run some `hard` trials with your Part 5 (or Part 6) agent and find a seed
 where it lost.
 
-**Seed:**
+**Seed:**1
 
 **What happened.**
 > Replay it with `python tools/play.py --difficulty hard --agent
 > utility_based --seed N` and describe the sequence.
+From the beginning, it was going good until the end where pacman did not get the power pellet and instead went into a corner where a ghost blocked its path.
 
 **Why the losing decision was still rational.**
 > AIMA Section 2.2.2 separates rationality from omniscience. Use it. What
 > did the agent not know, and could it have known it given the percept it
 > was handed and the "no search" rule every part in this project follows?
 
+The losing decision was still rational because it still made a legal choice, knew the current ghost locations, food locations, and past explroed tiles, however it did not know the exact random choice the ghost was going to make for its movement.
+
 **What would have to change for that decision to be irrational?**
+
+In order for the decision to have been irrational, the agent would have had to have known of a legal option that was also available to the agent at the time but decided to willingly choose the action with a worse outcome.
 
 ---
 
@@ -128,8 +154,27 @@ and a row for the trained `learning` agent from
 `results/learned_weights.json`.
 
 | agent | difficulty | trials | win_rate | caught_rate | mean_score | mean_decisions | mean_performance |
-|---|---|---|---|---|---|---|---|
-| | | | | | | | |
+agent	difficulty	trials	win_rate	caught_rate	mean_score	mean_decisions	mean_backtracks	mean_performance	stdev_performance
+table_driven	normal	30	0	1	77	12.23	1.1	-927.65	20
+simple_reflex	normal	30	0	1	721.67	110.37	6.7	-313.81	51.41
+model_based	normal	30	0	1	602.67	84.3	1.5	-417.19	89.97
+goal_based	normal	30	0.133	0.867	712.33	98.47	10.83	70.97	1210.01
+utility_based	normal	30	0.7	0.3	951.67	105.03	6.93	2016.79	1529.98
+learning	normal	30	0.067	0.933	467	56.5	6.5	-357.3	1003.52
+greedy	normal	30	0.6	0.4	1091	79.9	6.93	1861.15	1819.58
+random	normal	30	0	1	190.67	33.2	11.87	-839.71	129.68
+
+agent	difficulty	trials	win_rate	caught_rate	mean_score	mean_decisions	mean_backtracks	mean_performance	stdev_performance
+table_driven	hard	30	0	1	70	9.23	1	-933.85	0.09
+simple_reflex	hard	30	0	1	691.67	77.07	5.07	-333.88	111.49
+model_based	hard	30	0	1	578	59	0.43	-434.67	54.74
+goal_based	hard	30	0.233	0.767	682	71.43	6.9	353.91	1494.56
+utility_based	hard	30	0	1	488.67	45.97	2.93	-526.39	100.62
+learning	hard	30	0	1	664	46.3	2.5	-350.26	264.57
+greedy	hard	30	0.033	0.967	161.67	14.9	0.4	-742.11	758.66
+random	hard	30	0	1	131.33	21.9	6.2	-885.45	8.87
+
+
 
 **Interpretation, five to eight sentences.**
 > Do not restate the numbers. Trace the progression: what does each part
@@ -141,6 +186,8 @@ and a row for the trained `learning` agent from
 > interesting ones for Part 6. If any part did NOT improve on the one
 > before it in your results, say so and explain why -- that is a real
 > finding, not something to hide.
+
+The progression across the size parts shos that adding more advanced agent structures do not automatically guarantee better performance. Each part gives the agent new capabilities rather than the guaranteed better performance. For example, part 2 replaces the table driven lookup with condition action rules. In part 3 we add memory through visit coutns and position history. part 4 adds explicit goals and Part 5 replaces the single goal test with a utility function. Part 6 added larning by changing the utility weights between episodes and keeping the candidate weights that perform better. However, the learned weights did not really generalize better than the starting weights. This was because the small training samples did not always translate into better performance on different episodes.
 
 ---
 
