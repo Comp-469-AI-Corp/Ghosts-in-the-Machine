@@ -147,7 +147,23 @@ class LearningAgent:
         constructing a UtilityWeights from scratch, so every untouched
         field stays exactly as it was.
         """
-        raise NotImplementedError("CH2-6a: propose_new_weights")
+        field_names = list(self.best_weights.__dataclass_fields__) # get name in UtilityWeights
+
+        count = self.rng.radint(1, 2) # choose randomly to modify
+
+        chosen = self.rng.sample(field_names, count) # select weight name
+
+
+        updates: dict[str,float] = {}
+
+        for name in chosen:
+            current = getattr(self.best_wegiths, name)
+
+            scale = (self.PERTURBATION_STRENGTH * max(abs(current), 2.0))
+
+            updates[name] = current + self.rng.guass(0.0, scale)
+
+        return replace(self.best_weights, **updates)
 
     # -------------------------------------------------------------
     # TODO(CH2-6b)  Critic + learning element
