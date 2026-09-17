@@ -157,11 +157,11 @@ class LearningAgent:
         updates: dict[str,float] = {}
 
         for name in chosen:
-            current = getattr(self.best_wegiths, name)
+            current = getattr(self.best_weigts, name)
 
             scale = (self.PERTURBATION_STRENGTH * max(abs(current), 2.0))
 
-            updates[name] = current + self.rng.guass(0.0, scale)
+            updates[name] = current + self.rng.gauss(0.0, scale)
 
         return replace(self.best_weights, **updates)
 
