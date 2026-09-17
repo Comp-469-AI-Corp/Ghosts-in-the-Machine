@@ -221,6 +221,23 @@ class UtilityBasedAgent:
                     safe_bonus = w.ghost_safe_distance * (ghost_distance -3)
                     contributions["ghost"] += min(safe_bonus, w.ghost_safe_distance_cap)
 
+
+        if len(self.position_history) >= 2:
+            previous_title = self.position_history[-2]
+
+            if landing == previous_title:
+                contributions["backtrack"] = w.backtrack
+
+        weighted_term = (
+            "food_distance",
+            "regular_pellet",
+            "power_pellet",
+            "ghost",
+            "revisit",
+            "backtrack",
+            "continuation"
+        )
+
     # -------------------------------------------------------------
     # TODO(CH2-5c)  Select, and explain
     # -------------------------------------------------------------
