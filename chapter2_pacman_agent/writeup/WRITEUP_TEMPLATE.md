@@ -76,8 +76,8 @@ restatement of what it does overall -- the specific delta).
 | 2. Simple reflex |figure 2.10 |replaces precomputed table with ordered condition action rules eval from the current precept |
 | 3. Model-based reflex |figure 2.11 and 2.12???|adds internal state so agent can distinguish a place already visited from a new location |
 | 4. Goal-based |figure 2.13 |Adds explicit changeable goal and goal test |
-| 5. Utility-based | | |
-| 6. Learning | | |
+| 5. Utility-based |figure 2.14| replaces goal test with graded utility function |
+| 6. Learning | figure 2.15|adds learning process between episodes |
 
 **Two follow-ups:**
 
@@ -85,9 +85,16 @@ restatement of what it does overall -- the specific delta).
 > in your percepts. Say which you took and what the other one would have
 > cost you.
 
+We used released_ghosts in our percepts. Using ghosts would have cost us a lot in the accuracy of our agent because it has ALL ghost positions, including the ones not currently moving and providing an active threat
+
 > For Part 6: map the four boxes of AIMA Figure 2.15 (performance
 > element, critic, learning element, problem generator) onto specific
 > names in `learning_agent.py`.
+
+Performance element: self.performance_element
+Critic: simulation.performance()
+Learning element: LearningAgent.learn(performance)
+Problem generator: LearningAgent.propose_new_weights()
 
 ---
 
@@ -100,14 +107,18 @@ you.
 
 **Where does each one live?**
 > File and function/class for both.
+for the  performance measure: pacman/rules.py and Simulation.performance()
+For the utility function: utility_based_agent.py, UtilityWeights, and UtilityBasedAgent.evalueate_action()
 
 **Name one place they disagree.**
 > Find something your utility function rewards (or punishes) that the
 > performance measure does not, or the reverse. Explain why that gap
 > exists and whether it is a flaw.
+One place that they disagree on is the revisiting a tile. The gap exists and is intentional so that the agent does not spend too much time backtracking and actually spends time looking/exploring tiles it has not been to.
 
 **Why does AIMA insist on the distinction?**
 > Answer in your own words, in three or four sentences.
+AIMA insist on the distinction becase the performance measure is what the environment designer wants while the utility function is a tool for the agent to decide action. The performance measure judges the resulting behavior where the utility guides the choice of the agent before the final outcomes are known. Keeping them distinc also helps to see what the agent's preferences do and how they do not perfectly represent the rewards from the envrionment.
 
 ---
 

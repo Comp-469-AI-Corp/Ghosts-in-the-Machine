@@ -49,22 +49,22 @@ class UtilityWeights:
     environment's performance measure (AIMA 4e Section 2.2 keeps those
     separate on purpose; so does this codebase -- see pacman/rules.py)."""
 
-    food_distance: float = -2.0
-    regular_pellet: float = 25.0
-    power_pellet: float = 80.0
+    food_distance: float = -1.0
+    regular_pellet: float = 0.0
+    power_pellet: float = 0.0
     
-    ghost_catch_frightened: float = 140.0 # reward for eating frightened ghost
-    ghost_close_frightened: float = -4.0 # smaller distance = smaller penalty for being close to frightened ghost
-    ghost_collision: float = -5000.0 # penalty for hitting a ghost that is not frightened
+    ghost_catch_frightened: float = 0.1 # reward for eating frightened ghost
+    ghost_close_frightened: float = 0.0 # smaller distance = smaller penalty for being close to frightened ghost
+    ghost_collision: float = -1000.0 # penalty for hitting a ghost that is not frightened
     # penalty for being too close to ghost
-    ghost_one_step: float = -1200.0
-    ghost_two_steps: float = -350.0
-    ghost_three_steps: float = -100.0
-    ghost_safe_distance: float = 2.0 # reward for staying more than three steps away from ghost
-    ghost_safe_distance_cap: float = 8.0 # max reward so no hiding
-    continuation: float = 2.0 # prevent unnessacary turning
-    revisit_per_visit: float = -2.0 # penalty for exploring same spot more than once
-    backtrack: float = -5.0 # penalty for going back direction came from
+    ghost_one_step: float = -1.0
+    ghost_two_steps: float = 0.0
+    ghost_three_steps: float = -0.01
+    ghost_safe_distance: float = 0.01 # reward for staying more than three steps away from ghost
+    ghost_safe_distance_cap: float = 0.1 # max reward so no hiding
+    continuation: float = 0.0 # prevent unnessacary turning
+    revisit_per_visit: float = -0.01 # penalty for exploring same spot more than once
+    backtrack: float = -0.01 # penalty for going back direction came from
 
 
 class UtilityBasedAgent:
