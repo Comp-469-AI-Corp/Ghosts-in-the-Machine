@@ -14,8 +14,7 @@ and can trade one desideratum off against another inside a single number.
 Do NOT implement your own search (BFS, DFS, A*, ...). ``self.maze.distance``
 is provided precisely so you never have to.
 
-TODO(CH2-5a), TODO(CH2-5b), TODO(CH2-5c) mark what to do. Delete each
-marker once that piece is done.
+
 """
 
 from __future__ import annotations
@@ -43,26 +42,7 @@ class Percept:
         return self.frightened_time_remaining > 0.0
 
 
-# =====================================================================
-# TODO(CH2-5a)  Named utility weights
-# =====================================================================
-# A utility function that hides its preferences inside bare numbers is
-# unreadable. Every number that expresses a preference belongs here, with
-# a name. At minimum you need weights covering:
-#
-#   catching a frightened ghost         a dangerous ghost one step away
-#   closing distance on a frightened    a dangerous ghost two steps away
-#     ghost (should be NEGATIVE: closer   a dangerous ghost three steps away
-#     is more attractive)               keeping a comfortable distance
-#   colliding with a dangerous ghost      beyond that, with a cap
-#   continuing in the same direction    revisiting a tile (per visit)
-#   reversing into the tile you just left
-#
-# food_distance, regular_pellet, and power_pellet are started for you.
-# Pick your own numbers for the rest -- you will defend them in the
-# write-up. A reader should be able to tell what this agent wants by
-# reading this class alone.
-# =====================================================================
+
 @dataclass(frozen=True)
 class UtilityWeights:
     """Named preferences. This is the agent's utility function, not the
@@ -72,7 +52,7 @@ class UtilityWeights:
     food_distance: float = -2.0
     regular_pellet: float = 25.0
     power_pellet: float = 80.0
-    # TODO(CH2-5a): add the remaining named weights here.
+    
     ghost_catch_frightened: float = 150.0 # reward for eating frightened ghost
     ghost_close_frightened: float = -5.0 # smaller distance = smaller penalty for being close to frightened ghost
     ghost_collision: float = -3000.0 # penalty for hitting a ghost that is not frightened
@@ -109,9 +89,7 @@ class UtilityBasedAgent:
         self.visit_counts[position] = self.visit_counts.get(position, 0) + 1
         self.position_history.append(position)
 
-    # -------------------------------------------------------------
-    # TODO(CH2-5b)  Evaluate one action
-    # -------------------------------------------------------------
+    
     def evaluate_action(
         self,
         percept: Percept,
@@ -242,9 +220,7 @@ class UtilityBasedAgent:
 
         return total_utility, contributions
 
-    # -------------------------------------------------------------
-    # TODO(CH2-5c)  Select, and explain
-    # -------------------------------------------------------------
+    
     def choose_action(self, percept: Percept) -> tuple[int, int]:
         """Replace the starter policy below.
 

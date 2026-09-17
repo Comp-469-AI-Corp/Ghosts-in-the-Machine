@@ -26,10 +26,7 @@ just delegates. What is new is what happens BETWEEN episodes, driven by
 ``tools/train_learning_agent.py`` (provided), which is the only thing that
 calls ``propose_new_weights()`` and ``learn()``.
 
-TODO(CH2-6a) and TODO(CH2-6b) mark what to do. Everything else in this
-file -- the naive starting weights, loading a previous training run,
-``choose_action`` delegating to the performance element -- is plumbing,
-provided so you can focus on the two methods that matter.
+
 """
 
 from __future__ import annotations
@@ -128,9 +125,7 @@ class LearningAgent:
         single decision changes in this part."""
         return self.performance_element.choose_action(percept)
 
-    # -------------------------------------------------------------
-    # TODO(CH2-6a)  Problem generator
-    # -------------------------------------------------------------
+    
     def propose_new_weights(self) -> UtilityWeights:
         """Return ``self.best_weights`` with a small random nudge applied
         to one or two fields, and RETURN it -- do not mutate any state
@@ -165,9 +160,7 @@ class LearningAgent:
 
         return replace(self.best_weights, **updates)
 
-    # -------------------------------------------------------------
-    # TODO(CH2-6b)  Critic + learning element
-    # -------------------------------------------------------------
+    
     def learn(self, performance: float) -> None:
         """Called once after each training episode with that episode's
         performance measure -- the critic's judgement, computed by the
