@@ -73,18 +73,18 @@ class UtilityWeights:
     regular_pellet: float = 25.0
     power_pellet: float = 80.0
     # TODO(CH2-5a): add the remaining named weights here.
-    ghost_catch_frightenend: float = 140.0 # reward for eating frightened ghost
-    ghost_close_frightened: float = -4.0 # smaller distance = smaller penalty for being close to frightened ghost
-    ghost_collision: float = -2600.0 # penalty for hitting a ghost that is not frightened
+    ghost_catch_frightened: float = 150.0 # reward for eating frightened ghost
+    ghost_close_frightened: float = -5.0 # smaller distance = smaller penalty for being close to frightened ghost
+    ghost_collision: float = -3000.0 # penalty for hitting a ghost that is not frightened
     # penalty for being too close to ghost
-    ghost_one_step: float = -350.0
-    ghost_two_step: float = -90.0
-    ghost_three_step: float = -30.0
-    ghost_safe_distance: float = 3.0 # reward for staying more than three steps away from ghost
-    ghost_safe_distance_cap: float = 15.0 # max reward so no hiding
-    continuation: float = 2.0 # prevent unnessacary turning
-    revisit_per_visit: float = -4.0 # penalty for exploring same spot more than once
-    backtrack: float = -10.0 # penalty for going back direction came from
+    ghost_one_step: float = -500.0
+    ghost_two_steps: float = -140.0
+    ghost_three_steps: float = -40.0
+    ghost_safe_distance: float = 1.0 # reward for staying more than three steps away from ghost
+    ghost_safe_distance_cap: float = 5.0 # max reward so no hiding
+    continuation: float = 1.0 # prevent unnessacary turning
+    revisit_per_visit: float = -8.0 # penalty for exploring same spot more than once
+    backtrack: float = -15.0 # penalty for going back direction came from
 
 
 class UtilityBasedAgent:
@@ -207,16 +207,16 @@ class UtilityBasedAgent:
                 contributions["ghost"] += w.ghost_close_frightened * ghost_distance
 
                 if landing in ghosts:
-                    contributions["ghost"] += w.ghost_catch_frightenend
+                    contributions["ghost"] += w.ghost_catch_frightened
             else:
                 if ghost_distance == 0:
                     contributions["ghost"] += w.ghost_collision
                 elif ghost_distance == 1:
                     contributions["ghost"] += w.ghost_one_step
                 elif ghost_distance ==2 :
-                    contributions["ghost"] += w.ghost_two_step
+                    contributions["ghost"] += w.ghost_two_steps
                 elif ghost_distance ==3 :
-                    contributions["ghost"] += w.ghost_three_step
+                    contributions["ghost"] += w.ghost_three_steps
                 else:
                     safe_bonus = w.ghost_safe_distance * (ghost_distance -3)
                     contributions["ghost"] += min(safe_bonus, w.ghost_safe_distance_cap)
@@ -237,6 +237,10 @@ class UtilityBasedAgent:
             "backtrack",
             "continuation"
         )
+
+        total_utility = sum(contributions[name] for name in weighted_term)
+
+        return total_utility, contributions
 
     # -------------------------------------------------------------
     # TODO(CH2-5c)  Select, and explain
@@ -273,5 +277,32 @@ class UtilityBasedAgent:
             self.last_reason = "No legal move."
             return (0, 0)
 
-        
+        self.update_internal_state(percept)
+        best_action = percept.legal_actions[0]
+        best_utility, best_constributions = self.evaluate_action(percept, best_action) # first result stored in utility, second one stored in contributions
+
+        for action in percept.legal_actions[1:]:
+            utility, contributions = self.evaluate_action(percept, action)
+
+            if utility > best_utility:
+                best_action = action
+                best_utility = utility
+                best_constributions = contributions
+
+        landing = self.maze.step(percept.player, best_action)
+
+        if best_constributions["revisit_count"] >0:
+            self.revisit_decisions += 1
+
+        if (len(self.position_history) >= 2 and landing == self.position_history[-2]):
+            self.backtrack_decisions += 1
+
+        memory = (best_constributions["revisit"] + best_constributions["backtrack"])
+
+        food_steps = best_constributions["food_distance_steps"]
+        ghost_steps = best_constributions["ghost_distance_steps"]
+
+        self.last_reason = (f"{DIRECTION_NAMES[best_action]} | U={best_utility:.1f} | "f"food={food_steps:g} | ghost={ghost_steps:g} | "f"memory={memory:.1f}") # distance of food and ghost in addition to combined memory
+
+        return best_action
         # -------------- end of starter policy to replace --------------
