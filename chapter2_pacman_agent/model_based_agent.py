@@ -62,6 +62,11 @@ class ModelBasedAgent:
         #   self.backtrack_decisions: int, starts at 0
         # =============================================================
 
+        self.visit_counts: dict[tuple[int, int], int] = {}
+        self.position_history: deque[tuple[int, int]] = deque(maxlen=4)
+        self.revisit_decisions = 0
+        self.backtrack_decisions = 0
+
     # -------------------------------------------------------------
     # TODO(CH2-3b)  Update internal state
     # -------------------------------------------------------------
@@ -70,7 +75,9 @@ class ModelBasedAgent:
         action is chosen. Record that percept.player has been visited
         (increment its count in visit_counts) and append it to
         position_history."""
-        raise NotImplementedError("CH2-3b: update_internal_state")
+
+        self.visit_counts[percept.player] = (self.visit_counts.get(percept.player, 0) + 1)
+        self.position_history.append(percept.player)
 
     def choose_action(self, percept: Percept) -> tuple[int, int]:
         if not percept.legal_actions:
@@ -133,7 +140,41 @@ class ModelBasedAgent:
         # Finish with: return self._commit(best_action, f"least-visited
         # ({rule})")
         # =============================================================
-        raise NotImplementedError("CH2-3c: memory-driven selection")
+        backtrack_tile = None
+        non_backtrack = []
+
+        if len(self.position_history) >= 2:
+            backtrack_tile = self.position_history[-2]
+
+            for action in safe:
+                if landing[action] != backtrack_tile:
+                    non_backtrack.append(action)
+        else:
+            non_backtrack = safe
+
+        if len(non_backtrack) == 0:
+            non_backtrack = safe
+
+        best_action = non_backtrack[0]
+        best_tile = landing[best_action]
+        best_count = self.visit_counts.get(best_tile, 0)
+
+        for action in non_backtrack[1:]:
+            tile = landing[action]
+            count = self.visit_counts.get(tile, 0)
+
+            if count < best_count:
+                best_action = action
+                best_tile = tile
+                best_count = count
+
+        if self.visit_counts.get(best_tile, 0) > 0:
+            self.revisit_decisions += 1
+
+        if best_tile == backtrack_tile:
+            self.backtrack_decisions += 1
+
+        return self._commit(best_action, f"least-visited ({rule})")
 
     def _commit(self, action: tuple[int, int], rule: str) -> tuple[int, int]:
         self.last_reason = f"{DIRECTION_NAMES[action]} | rule: {rule}"
